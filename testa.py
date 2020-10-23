@@ -1,19 +1,20 @@
 # you need to install opencv 
 from cv2 import imread
 from cv2 import imshow
+from cv2 import imwrite
 from cv2 import waitKey
 from cv2 import destroyAllWindows
 from cv2 import CascadeClassifier
 from cv2 import rectangle
 
 # load photograph
-pixels = imread('test2.png')
+pixels = imread('test3.jpg')
 
 # pre-trained model
 classifier = CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # perform detection
-bboxes = classifier.detectMultiScale(pixels)
+bboxes = classifier.detectMultiScale(pixels, 1.6, 4) #configure accuracy - default settings: 1.6 & 4
 
 facex = []
 facey = []
@@ -37,16 +38,22 @@ for box in bboxes:
 imshow('Face Detection', pixels)
 
 i = 0
+num = 1
 
 for coord in facex: #count no. of facex coords collected, aka number of faces
 
 	crop_image = pixels[facey[i]:facey2[i], facex[i]:facex2[i]]
-	imshow("Cropped image(s)", crop_image)
+	#imshow("Cropped image(s)", crop_image)
 	print (1)
 
+	filename = "faces/face" + str(num) + ".jpg"
+	print (filename)
+	
+	imwrite(filename, crop_image)
+
 	i += 1
+	num += 1
 
 	waitKey(0) #how to automate this?
 
-waitKey(0)
 destroyAllWindows()
