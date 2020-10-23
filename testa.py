@@ -8,13 +8,13 @@ from cv2 import CascadeClassifier
 from cv2 import rectangle
 
 # load photograph
-pixels = imread('test3.jpg')
+pixels = imread('test4.jpg')
 
 # pre-trained model
 classifier = CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # perform detection
-bboxes = classifier.detectMultiScale(pixels, 1.6, 4) #configure accuracy - default settings: 1.6 & 4
+bboxes = classifier.detectMultiScale(pixels, 1.35, 3) #configure accuracy - default settings: 1.6 & 4
 
 facex = []
 facey = []
