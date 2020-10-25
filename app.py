@@ -13,15 +13,14 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 auth = HTTPBasicAuth()
 
 limiter = Limiter(
-    app, key_func=  auth.username, default_limits=["1 per minute"])
+    app, key_func=auth.username, default_limits=["10 per second"])
 
 
 @auth.verify_password
 def verify_password(username, password):
-    return password == "password" # just cuz i dont want to make real passwords
+    return check_password_hash('pbkdf2:sha256:150000$yfpwL5TV$8534b192e4691cab12683cc3e0b1bb5b3d23313b02b667165cb2df9f0ee4823c', password) # just cuz i dont want to make real passwords
 
 @app.route('/uploadImage', methods=['POST'])
-@auth.login_required
 def img():
     if 'photo' in request.files:
         photo = request.files['photo']
@@ -33,13 +32,14 @@ def img():
         return make_response(imgProcessing(img), 200)
     else: return make_response("Need an input file" ,400)
 
-def emptyFolder(path):
-    # using listdir() method to list the files of the folder
-    faces = os.listdir((path))
-
-    for images in faces:
-        if images.endswith(".jpg"):
-            os.remove(os.path.join(path, images))
+@app.route('/')
+def home():
+    return make_response("""
+        <form method="POST" enctype="multipart/form-data" action="http://gad:grapefukt@127.0.0.1/uploadImage">
+            <input type="file" name="photo" />
+            <input type="submit" />
+        </form>
+    """, 200)
 
 classifier = CascadeClassifier('models/haarcascade_frontalface_default.xml')
 
@@ -57,18 +57,8 @@ def getFaces(pixels):
 
     return faces
 
-genderProto = "models/deploy_gender.prototxt"
-genderModel = "models/gender_net.caffemodel"
-genderNet = dnn.readNet(genderModel, genderProto)
-
-genderList = ['Male', 'Female']
-
 def getGender(face):
-    blob = dnn.blobFromImage(face)
-    genderNet.setInput(blob)
-    genderPreds = genderNet.forward()
-    gender = genderList[genderPreds[0].argmax()]
-    return gender
+    return "Male"
 
 def getAge(face):
     return 35
@@ -80,7 +70,8 @@ def getLandmarks(face):
 def imgProcessing(pixels):
     out = []
     for face in getFaces(pixels):
-        age = getGender(face)
+        age = getAge(face)
+        gender = getGender(face)
         landmarks = getLandmarks(face)
-        out.append((age, landmarks))
+        out.append((age, gender, landmarks))
     return dumps(out)
