@@ -1,10 +1,9 @@
-from cv2 import imdecode, imshow, waitKey, destroyAllWindows, CascadeClassifier, rectangle
 from werkzeug.security import generate_password_hash, check_password_hash
+from cv2 import imdecode, CascadeClassifier, dnn, rectangle, imshow
 from flask import Flask, request, make_response
 from flask_httpauth import HTTPBasicAuth
 from numpy import fromstring, uint8
 from flask_limiter import Limiter
-from cv2 import imread, imwrite # temp
 from io import BytesIO
 from json import dumps
 
@@ -42,7 +41,7 @@ def emptyFolder(path):
         if images.endswith(".jpg"):
             os.remove(os.path.join(path, images))
 
-classifier = CascadeClassifier('haarcascade_frontalface_default.xml')
+classifier = CascadeClassifier('models/haarcascade_frontalface_default.xml')
 
 def getFaces(pixels):
     faces = []
@@ -58,9 +57,21 @@ def getFaces(pixels):
 
     return faces
 
-def getAgeGender(face):
-    # img processing code would be here
-    return (35, 'Male')
+genderProto = "models/deploy_gender.prototxt"
+genderModel = "models/gender_net.caffemodel"
+genderNet = dnn.readNet(genderModel, genderProto)
+
+genderList = ['Male', 'Female']
+
+def getGender(face):
+    blob = dnn.blobFromImage(face)
+    genderNet.setInput(blob)
+    genderPreds = genderNet.forward()
+    gender = genderList[genderPreds[0].argmax()]
+    return gender
+
+def getAge(face):
+    return 35
 
 def getLandmarks(face):
     # more img processing code
@@ -69,7 +80,7 @@ def getLandmarks(face):
 def imgProcessing(pixels):
     out = []
     for face in getFaces(pixels):
-        ag = getAgeGender(face)
+        age = getGender(face)
         landmarks = getLandmarks(face)
-        out.append((ag, landmarks))
+        out.append((age, landmarks))
     return dumps(out)
