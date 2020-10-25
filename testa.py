@@ -2,9 +2,9 @@ from cv2 import imdecode, imshow, waitKey, destroyAllWindows, CascadeClassifier,
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, make_response
 from flask_httpauth import HTTPBasicAuth
+from numpy import fromstring, uint8
 from flask_limiter import Limiter
 from cv2 import imread, imwrite # temp
-from numpy import fromstring
 from io import BytesIO
 import os
 
@@ -28,9 +28,9 @@ def img():
         photo = request.files['photo']
         in_memory_file = BytesIO()
         photo.save(in_memory_file)
-        data = fromstring(in_memory_file.getvalue(), dtype=np.uint8)
+        data = fromstring(in_memory_file.getvalue(), dtype=uint8)
         color_image_flag = 1
-        img = cv2.imdecode(data, color_image_flag)
+        img = imdecode(data, color_image_flag)
         output = getFaces(img)
         return make_response(output, 200)
     else: return make_response("Need an input file" ,400)
