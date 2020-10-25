@@ -1,10 +1,12 @@
-from cv import imdecode, imshow, waitKey, destroyAllWindows, CascadeClassifier, rectangle
+from cv2 import imdecode, imshow, waitKey, destroyAllWindows, CascadeClassifier, rectangle
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, make_response
 from flask_httpauth import HTTPBasicAuth
 from flask_limiter import Limiter
-from io import BytesIO
+from cv2 import imread, imwrite # temp
 from numpy import fromstring
+from io import BytesIO
+import os
 
 app = Flask('app')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -29,9 +31,9 @@ def img():
         data = fromstring(in_memory_file.getvalue(), dtype=np.uint8)
         color_image_flag = 1
         img = cv2.imdecode(data, color_image_flag)
-		output = AIMagic(img)
-		return make_response(output, 200)
-	else: return make_response("Need an input file" ,400)
+        output = AIMagic(img)
+        return make_response(output, 200)
+    else: return make_response("Need an input file" ,400)
 
 
 def emptyFolder(path):
