@@ -1,13 +1,37 @@
-# you need to install opencv 
-import cv2
-from cv2 import imread
-from cv2 import imshow
-from cv2 import imwrite
-from cv2 import waitKey
-from cv2 import destroyAllWindows
-from cv2 import CascadeClassifier
-from cv2 import rectangle
-import os
+from cv import imdecode, imshow, waitKey, destroyAllWindows, CascadeClassifier, rectangle
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, request, make_response
+from flask_httpauth import HTTPBasicAuth
+from flask_limiter import Limiter
+from io import BytesIO
+from numpy import fromstring
+
+app = Flask('app')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+auth = HTTPBasicAuth()
+
+limiter = Limiter(
+    app, key_func=  auth.username, default_limits=["100 per second"])
+
+
+@auth.verify_password
+def verify_password(username, password):
+    return password == "password" # just cuz i dont want to make real passwords
+
+@app.route('/uploadImage', methods=['POST'])
+@auth.login_required
+def img():
+    if 'photo' in request.files:
+        photo = request.files['photo']
+        in_memory_file = BytesIO()
+        photo.save(in_memory_file)
+        data = fromstring(in_memory_file.getvalue(), dtype=np.uint8)
+        color_image_flag = 1
+        img = cv2.imdecode(data, color_image_flag)
+		output = AIMagic(img)
+		return make_response(output, 200)
+	else: return make_response("Need an input file" ,400)
 
 
 def emptyFolder(path):
