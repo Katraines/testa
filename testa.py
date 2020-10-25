@@ -6,7 +6,7 @@ from numpy import fromstring, uint8
 from flask_limiter import Limiter
 from cv2 import imread, imwrite # temp
 from io import BytesIO
-import os
+from json import dumps
 
 app = Flask('app')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -58,10 +58,18 @@ def getFaces(pixels):
 
     return faces
 
+def getAgeGender(face):
+    # img processing code would be here
+    return (35, 'Male')
+
+def getLandmarks(face):
+    # more img processing code
+    return [(5,3,5), (0, 5, 64), (255, 54, 63)]
+
 def imgProcessing(pixels):
     out = []
     for face in getFaces(pixels):
         ag = getAgeGender(face)
         landmarks = getLandmarks(face)
-        out.append(ag, landmarks)
-    return out
+        out.append((ag, landmarks))
+    return dumps(out)
