@@ -14,7 +14,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 auth = HTTPBasicAuth()
 
 limiter = Limiter(
-    app, key_func=  auth.username, default_limits=["100 per second"])
+    app, key_func=  auth.username, default_limits=["1 per minute"])
 
 
 @auth.verify_password
@@ -31,10 +31,8 @@ def img():
         data = fromstring(in_memory_file.getvalue(), dtype=uint8)
         color_image_flag = 1
         img = imdecode(data, color_image_flag)
-        output = getFaces(img)
-        return make_response(output, 200)
+        return make_response(imgProcessing(img), 200)
     else: return make_response("Need an input file" ,400)
-
 
 def emptyFolder(path):
     # using listdir() method to list the files of the folder
@@ -45,6 +43,7 @@ def emptyFolder(path):
             os.remove(os.path.join(path, images))
 
 classifier = CascadeClassifier('haarcascade_frontalface_default.xml')
+
 def getFaces(pixels):
     faces = []
 
@@ -59,16 +58,10 @@ def getFaces(pixels):
 
     return faces
 
-# first, file cleaner to remove old pictures from last time
-# specify path - can change later, I just put local /faces directory
-emptyFolder('faces')
-images = getFaces(imread("test3.jpg"))
-
-num = 1 # or 0
-for img in images:
-    filename = "faces/face" + str(num) + ".jpg"
-    imwrite(filename, img)
-    num += 1
-
-waitKey(0) #how to automate this?
-destroyAllWindows() 
+def imgProcessing(pixels):
+    out = []
+    for face in getFaces(pixels):
+        ag = getAgeGender(face)
+        landmarks = getLandmarks(face)
+        out.append(ag, landmarks)
+    return out
