@@ -31,7 +31,7 @@ def img():
         data = fromstring(in_memory_file.getvalue(), dtype=np.uint8)
         color_image_flag = 1
         img = cv2.imdecode(data, color_image_flag)
-        output = AIMagic(img)
+        output = getFaces(img)
         return make_response(output, 200)
     else: return make_response("Need an input file" ,400)
 
