@@ -1,12 +1,13 @@
 # Testa
 
 ## What this is
-This is the backend for our new project Idealisk, it takes an image and outputs the data it was able to gather from the image
+This is the backend for our new project Idealisk. It takes an image as an input and outputs the facial data it was able to extract from the image.
 
 ## How to start
-You need pipenv to get started, it also uses opencv so we recomend Python 3.7
+You need pipenv to get started, it also uses OpenCV. 
+At the time of writing, we recommend using Python 3.7 and OpenCV 4.4.0; other versions may cause compatibility issues.
 
-To get started run
+To get started, run the below on the terminal of your choice:
 ```
 git clone https://github.com/Katraines/testa
 py -m pip install pipenv
