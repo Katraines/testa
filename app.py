@@ -6,6 +6,7 @@ from numpy import fromstring, uint8
 from flask_limiter import Limiter
 from io import BytesIO
 from json import dumps
+import random
 
 app = Flask('app')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -18,7 +19,9 @@ limiter = Limiter(
 
 @auth.verify_password
 def verify_password(username, password):
-    return check_password_hash('pbkdf2:sha256:150000$yfpwL5TV$8534b192e4691cab12683cc3e0b1bb5b3d23313b02b667165cb2df9f0ee4823c', password) # just cuz i dont want to make real passwords
+    # just cuz i dont want to make real passwords
+    return check_password_hash('pbkdf2:sha256:150000$yfpwL5TV$8534b192e4691cab12683cc3e0b1bb5b3d23313b02b667165cb2df9f0ee4823c', password)
+
 
 @app.route('/uploadImage', methods=['POST'])
 def img():
@@ -30,7 +33,9 @@ def img():
         color_image_flag = 1
         img = imdecode(data, color_image_flag)
         return make_response(imgProcessing(img), 200)
-    else: return make_response("Need an input file" ,400)
+    else:
+        return make_response("Need an input file", 400)
+
 
 @app.route('/')
 def home():
@@ -41,7 +46,9 @@ def home():
         </form>
     """, 200)
 
+
 classifier = CascadeClassifier('models/haarcascade_frontalface_default.xml')
+
 
 def getFaces(pixels):
     faces = []
@@ -51,21 +58,26 @@ def getFaces(pixels):
         x, y, width, height = box
         x2, y2 = x + width, y + height
         # draw a rectangle over the pixels
-        rectangle(pixels, (x, y), (x2, y2), (0,0,255), 1) # remove after done testing
-        imshow('Face Detection', pixels) # this too
+        # remove after done testing
+        rectangle(pixels, (x, y), (x2, y2), (0, 0, 255), 1)
+        imshow('Face Detection', pixels)  # this too
         faces.append(pixels[y:y2, x:x2])
 
     return faces
 
+
 def getGender(face):
-    return "Male"
+    return random.choice(["Male", "Female"])  # Dummy Data
+
 
 def getAge(face):
-    return 35
+    return random.randint(8, 85)  # Dummy Data
+
 
 def getLandmarks(face):
     # more img processing code
-    return [(5,3,5), (0, 5, 64), (255, 54, 63)]
+    return [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for _ in range(random.randint(10, 50))]
+
 
 def imgProcessing(pixels):
     out = []
@@ -73,5 +85,11 @@ def imgProcessing(pixels):
         age = getAge(face)
         gender = getGender(face)
         landmarks = getLandmarks(face)
-        out.append((age, gender, landmarks))
+
+        out.append({
+            "age": age,
+            "gender": gender,
+            "landmarks": landmarks
+        })
+
     return dumps(out)
