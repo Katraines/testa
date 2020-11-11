@@ -12,6 +12,7 @@ flask-httpauth = "*"
 flask-limiter = "*"
 opencv-python = "*"
 tensorflow = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.7"

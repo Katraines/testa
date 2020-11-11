@@ -1,14 +1,19 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+# pylint: disable=fixme, no-name-in-module
 from cv2 import imdecode, CascadeClassifier, dnn, rectangle, imshow
 from flask import Flask, request, make_response
 from flask_httpauth import HTTPBasicAuth
 from numpy import fromstring, uint8
 from flask_limiter import Limiter
+from flask_cors import CORS
 from io import BytesIO
 from json import dumps
 import random
+import os
+
 
 app = Flask('app')
+CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 auth = HTTPBasicAuth()
@@ -70,6 +75,13 @@ def getGender(face):
     return random.choice(["Male", "Female"])  # Dummy Data
 
 
+AGE_BUCKETS = ["(0-2)", "(4-6)", "(8-12)", "(15-20)", "(25-32)",
+               "(38-43)", "(48-53)", "(60-100)"]
+
+prototxtPath = os.path.sep.join(["models", "age_deploy.prototxt"])
+weightsPath = os.path.sep.join(["models", "age_net.caffemodel"])
+
+# ageNet = dnn.readNet(prototxtPath, weightsPath)
 def getAge(face):
     return random.randint(8, 85)  # Dummy Data
 
