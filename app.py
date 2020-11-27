@@ -83,7 +83,7 @@ weightsPath = os.path.sep.join(["models", "age_net.caffemodel"])
 
 # ageNet = dnn.readNet(prototxtPath, weightsPath)
 def getAge(face):
-    return random.randint(8, 85)  # Dummy Data
+    return random.randint(0, 100)  # Dummy Data
 
 
 def getLandmarks(face):
